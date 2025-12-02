@@ -23,4 +23,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Il2CppDumper
-          path: ${{ steps.publish.outputs.artifact-path }}\*
+          path: D:\a\Il2CppDumper\Il2CppDumper
