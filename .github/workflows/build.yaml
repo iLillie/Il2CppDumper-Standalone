@@ -1,60 +1,29 @@
-name: build
+name: CI
 
 on:
   push:
   pull_request:
-    
+
 jobs:
   build:
-    strategy:
-      matrix:
-        platform: [Net9]
-        include:
-          - platform: Net9
-            package-name: Net9
-            build-dir: net9.0-windows
-            proj-name: Il2CppDumper
-            proj-file: Il2CppDumper\Il2CppDumper.csproj
-            solution-name: Il2CppDumper.sln
-            config: Release
-            dotnet: 9.0.x
-
     runs-on: windows-latest
-    
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4.2.2
-      with:
-        fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Install .NET ${{matrix.dotnet}}
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{matrix.dotnet}}
-
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v2
-    
-    - name: Setup NuGet
-      uses: NuGet/setup-nuget@v2.0.0
-    
-    - name: Restore NuGet packages
-      run: nuget restore ${{matrix.solution-name}}
-      
-    - name: Build app for release
-      run: msbuild ${{matrix.proj-file}} -t:rebuild -p:Configuration=${{matrix.config}}
-      
-    - name: Create output directory
-      run: New-Item -ItemType Directory -Path C:\builtfiles\${{matrix.proj-name}}-${{matrix.package-name}} -Force > $null
-      continue-on-error: true
-        
-    - name:  Copy release files for upload
-      run: Copy-Item -Path ${{matrix.proj-name}}\bin\Release\${{matrix.build-dir}}\* -Destination C:\builtfiles\${{matrix.proj-name}}-${{matrix.package-name}} -Recurse
-
-    - uses: actions/upload-artifact@v4.6.2
-      with:
-        name: ${{matrix.proj-name}} - ${{matrix.build-dir}}
-        path: C:\builtfiles\${{matrix.proj-name}}-${{matrix.package-name}}
-        if-no-files-found: error
-
-
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - name: Run publish for net8.0
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -ExecutionPolicy Bypass -File .\build-ci.ps1 -TargetFrameworks 'net8.0'
+      - name: Setup .NET 9 (optional)
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+      - name: Run publish for net9.0 (optional)
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -ExecutionPolicy Bypass -File .\build-ci.ps1 -TargetFrameworks 'net9.0' -Rids 'win-x64'
