@@ -13,8 +13,8 @@ jobs:
           - platform: Net9
             package-name: Net9
             build-dir: net9.0-windows
-            proj-name: Il2CppDumper.Winforms
-            proj-file: Il2CppDumper.WinForms\Il2CppDumper.WinForms.csproj
+            proj-name: Il2CppDumper
+            proj-file: Il2CppDumper\Il2CppDumper.csproj
             solution-name: Il2CppDumper.sln
             config: Release
             dotnet: 9.0.x
@@ -56,3 +56,5 @@ jobs:
         name: ${{matrix.proj-name}} - ${{matrix.build-dir}}
         path: C:\builtfiles\${{matrix.proj-name}}-${{matrix.package-name}}
         if-no-files-found: error
+
+
